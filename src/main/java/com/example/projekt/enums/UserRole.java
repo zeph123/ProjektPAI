@@ -1,5 +1,8 @@
 package com.example.projekt.enums;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
+
 public enum UserRole {
 
     ROLE_ADMINISTRATOR(1, "Administrator"),
@@ -26,8 +29,28 @@ public enum UserRole {
         return this.value + " " + this.name();
     }
 
-    public static UserRole valueOf(int value) {
-        return VALUES[value];
+    public static UserRole valueOf(int roleId) {
+        UserRole role = resolve(roleId);
+        if (role == null) {
+            throw new IllegalArgumentException("No matching constant for [" + roleId + "]");
+        } else {
+            return role;
+        }
+    }
+
+    @Nullable
+    public static UserRole resolve(int roleId) {
+        UserRole[] var1 = VALUES;
+        int var2 = var1.length;
+
+        for(int var3 = 0; var3 < var2; ++var3) {
+            UserRole role = var1[var3];
+            if (role.value == roleId) {
+                return role;
+            }
+        }
+
+        return null;
     }
 
 }

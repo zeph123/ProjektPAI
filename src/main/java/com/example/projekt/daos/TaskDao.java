@@ -1,11 +1,13 @@
-package com.example.projekt.models;
+package com.example.projekt.daos;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -28,10 +30,10 @@ public class TaskDao {
     private TaskStatusDao status;
 
     @Column
-    private Date creationDate;
+    private ZonedDateTime creationDate;
 
     @Column
-    private Date completionDate;
+    private ZonedDateTime completionDate;
 
     @JoinColumn(name="user_id")
     @ManyToOne(cascade = CascadeType.ALL)

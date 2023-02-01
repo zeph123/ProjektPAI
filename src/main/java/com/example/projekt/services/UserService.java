@@ -1,14 +1,14 @@
 package com.example.projekt.services;
 
-import com.example.projekt.enums.UserRole;
-import com.example.projekt.models.AddressDao;
-import com.example.projekt.models.UserDao;
+import com.example.projekt.daos.AddressDao;
+import com.example.projekt.daos.UserDao;
 import com.example.projekt.models.UserDto;
-import com.example.projekt.models.UserRoleDao;
+import com.example.projekt.daos.UserRoleDao;
 import com.example.projekt.repositories.AddressRepository;
 import com.example.projekt.repositories.UserRepository;
 import com.example.projekt.repositories.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,14 +29,38 @@ public class UserService {
     @Autowired
     private UserRoleRepository roleRepository;
 
-    public List<UserDao> getAllUser() {
-        return (List<UserDao>) userRepository.findAllUsers();
+    public List<UserDto> getAllUser() {
+        return (List<UserDto>) userRepository.findAllUsers();
     }
 
     public UserDao getUserById(String id) {
         Long userId = Long.parseLong(id);
         if (userRepository.existsById(userId)) {
             return userRepository.findUserDaoById(userId);
+        }
+        return null;
+    }
+
+    public UserDto getUserDtoById(String id) {
+        Long userId = Long.parseLong(id);
+        if (userRepository.existsById(userId)) {
+            return userRepository.findUserDtoById(userId);
+        }
+        return null;
+    }
+
+    public UserDao getUserByUsername(String username) {
+        UserDao userFromDb = userRepository.findByUsername(username);
+        if (userFromDb != null) {
+            return userFromDb;
+        }
+        return null;
+    }
+
+    public UserDto getUserDtoByUsername(String username) {
+        UserDto userFromDb = userRepository.findUserDtoByUsername(username);
+        if (userFromDb != null) {
+            return userFromDb;
         }
         return null;
     }
@@ -85,12 +109,18 @@ public class UserService {
         return false;
     }
 
-    public boolean changeSelectedUserRoleById(String id, String role_id) {
+    public UserRoleDao getRoleById(String id) {
+        Long roleId = Long.parseLong(id);
+        if (roleRepository.existsById(roleId)) {
+            return roleRepository.findUserRoleDaoById(roleId);
+        }
+        return null;
+    }
+
+    public boolean changeSelectedUserRoleById(String id, UserRoleDao role) {
         UserDao userFromDb = getUserById(id);
         if (userFromDb != null) {
-            Long roleId = Long.parseLong(role_id);
-            UserRoleDao userRoleFromDb = roleRepository.findUserRoleDaoById(roleId);
-            userFromDb.setRole(userRoleFromDb);
+            userFromDb.setRole(role);
             userRepository.save(userFromDb);
             return true;
         }
@@ -98,7 +128,7 @@ public class UserService {
     }
 
     public boolean archiveLoggedUser(String username) {
-        UserDao userFromDb = userRepository.findByUsername(username);
+        UserDao userFromDb = getUserByUsername(username);
         if (userFromDb != null) {
             userFromDb.setIsArchived(true);
             userRepository.save(userFromDb);
@@ -108,7 +138,7 @@ public class UserService {
     }
 
     public boolean updateLoggedUser(UserDto user, String username) {
-        UserDao userFromDb = userRepository.findByUsername(username);
+        UserDao userFromDb = getUserByUsername(username);
         if (userFromDb != null) {
             // aktualizacja danych uzytkownika
             userFromDb.setFirstname(user.getFirstname());

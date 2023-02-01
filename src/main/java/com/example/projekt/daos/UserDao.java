@@ -1,6 +1,7 @@
-package com.example.projekt.models;
+package com.example.projekt.daos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,6 @@ public class UserDao {
     private String username;
 
     @Column
-    @JsonIgnore
     private String password;
 
     @Column

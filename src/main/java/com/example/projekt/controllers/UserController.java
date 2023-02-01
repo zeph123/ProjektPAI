@@ -1,7 +1,7 @@
 package com.example.projekt.controllers;
 
 import com.example.projekt.config.JwtTokenUtil;
-import com.example.projekt.enums.UserRole;
+import com.example.projekt.daos.UserRoleDao;
 import com.example.projekt.models.UserDto;
 import com.example.projekt.services.UserService;
 import net.minidev.json.JSONArray;
@@ -31,12 +31,58 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<JSONObject> getAllUser(
             @RequestHeader("Authorization") String bearerToken
-    ){
+    ) {
+
+        List<UserDto> users = userService.getAllUser();
+        if (users.size() > 0) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "Pomyślnie pobrano wszystkich użytkowników z bazy.");
+            jsonObject.put("data", users);
+            return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+        }
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("message", "Pomyślnie pobrano wszystkich użytkowników z bazy.");
-        jsonObject.put("data", userService.getAllUser());
-        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+        jsonObject.put("message", "Nie znaleziono żadnych użytkowników w bazie.");
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/loggedUser")
+    public ResponseEntity<JSONObject> getLoggedUser(
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        String token = bearerToken.substring(7);
+        String username = jwtTokenUtil.getUsernameFromToken(token);
+
+        UserDto loggedUser = userService.getUserDtoByUsername(username);
+        if (loggedUser != null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "Pomyślnie pobrano zalogowanego użytkownika z bazy.");
+            jsonObject.put("data", loggedUser);
+            return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("message", "Nie udało się odnaleźć zalogowanego użytkownika, użytkownik o nazwie użytkownika: " + username + " nie istnieje w bazie.");
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/userById/{id}")
+    public ResponseEntity<JSONObject> getUserById(
+            @RequestHeader("Authorization") String bearerToken,
+            @PathVariable String id
+    ) {
+
+        UserDto userFromDb = userService.getUserDtoById(id);
+        if (userFromDb != null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", "Pomyślnie pobrano użytkownika o podanym ID: " + id + " z bazy.");
+            jsonObject.put("data", userFromDb);
+            return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("message", "Nie udało się odnaleźć użytkownika, użytkownik o podanym ID: " + id + " nie istnieje w bazie.");
+        return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/editLoggedUser")
@@ -180,7 +226,6 @@ public class UserController {
     @PostMapping("/unarchiveSelectedUser/{id}")
     public ResponseEntity<JSONObject> unarchiveSelectedUser(
             @RequestHeader("Authorization") String bearerToken,
-            @Valid @RequestBody UserDto user,
             @PathVariable String id
     ) {
 
@@ -202,17 +247,21 @@ public class UserController {
             @PathVariable String role_id
     ) {
 
-        if (userService.changeSelectedUserRoleById(id, role_id)) {
-            int roleId = Integer.parseInt(role_id);
-            UserRole role = UserRole.valueOf(roleId);
-            String roleName = role.getName();
+        UserRoleDao roleFromDb = userService.getRoleById(role_id);
+        if (roleFromDb != null) {
+            if (userService.changeSelectedUserRoleById(id, roleFromDb)) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("message", "Pomyślnie zmieniono rolę użytkownika o podanym ID: " + id + " na rolę: " + roleFromDb.getName() + ".");
+                return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+            }
+
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("message", "Pomyślnie zmieniono rolę użytkownika o podanym ID: " + id + " na rolę: " + roleName + ".");
-            return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.OK);
+            jsonObject.put("message", "Nie udało się zmienić roli użytkownika, użytkownik o podanym ID: " + id + " nie istnieje w bazie.");
+            return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.NOT_FOUND);
         }
 
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("message", "Nie udało się zmienić roli użytkownika, użytkownik o podanym ID: " + id + " nie istnieje w bazie.");
+        jsonObject.put("message", "Nie udało się zmienić roli użytkownika, rola o podanym ID: " + role_id + " nie istnieje w bazie.");
         return new ResponseEntity<JSONObject>(jsonObject, HttpStatus.NOT_FOUND);
     }
 

@@ -1,5 +1,6 @@
-package com.example.projekt.models;
+package com.example.projekt.daos;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +13,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "task_status")
-public class TaskStatusDao {
+@Table(name = "user_role")
+public class UserRoleDao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,5 +22,4 @@ public class TaskStatusDao {
 
     @Column
     private String name;
-
 }

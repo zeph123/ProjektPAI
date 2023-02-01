@@ -1,14 +1,19 @@
 package com.example.projekt.models;
 
+import lombok.*;
+
 import javax.validation.constraints.*;
 
-/*
-    Klasa modelu UserDto odpowiada za pobranie wartości od użytkownika
-    i przekazanie ich do warstwy DAO w celu wstawienia do bazy danych.
-*/
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserDto {
 
     // UserDao
+
+    private Long id;
 
     @NotEmpty(message = "Nazwa użytkownika nie może być pusta.")
     @Size(min = 2, max = 100, message = "Nazwa użytkownika musi zawierać od 2 do 100 znaków.")
@@ -43,6 +48,7 @@ public class UserDto {
     @Email(message = "Adres E-mail musi być poprawny zgodnie ze wzorem np. jantestowy@przykladowadomena.com.")
     private String emailAddress;
 
+    private Boolean archived;
 
     // AddressDao
 
@@ -64,6 +70,17 @@ public class UserDto {
     @NotEmpty(message = "Państwo nie może być puste.")
     @Size(min = 2, max = 100, message = "Państwo musi zawierać od 2 do 100 znaków.")
     private String state;
+
+    private Long roleId;
+    private String roleName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getUsername() {
         return username;
@@ -121,6 +138,14 @@ public class UserDto {
         this.emailAddress = emailAddress;
     }
 
+    public Boolean getArchived() {
+        return archived;
+    }
+
+    public void setArchived(Boolean archived) {
+        this.archived = archived;
+    }
+
     public String getStreet() {
         return street;
     }
@@ -159,5 +184,21 @@ public class UserDto {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 }

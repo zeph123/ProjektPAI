@@ -1,10 +1,10 @@
 package com.example.projekt.services;
 
 import com.example.projekt.enums.UserRole;
-import com.example.projekt.models.AddressDao;
-import com.example.projekt.models.UserDao;
+import com.example.projekt.daos.AddressDao;
+import com.example.projekt.daos.UserDao;
 import com.example.projekt.models.UserDto;
-import com.example.projekt.models.UserRoleDao;
+import com.example.projekt.daos.UserRoleDao;
 import com.example.projekt.repositories.AddressRepository;
 import com.example.projekt.repositories.UserRepository;
 import com.example.projekt.repositories.UserRoleRepository;
@@ -76,9 +76,11 @@ public class JwtUserDetailsService implements UserDetailsService {
         newUser.setEmailAddress(user.getEmailAddress());
         newUser.setIsArchived(false);
         newUser.setAddress(newUserAddress);
+
         Long roleId = (long) UserRole.ROLE_USER.value();
         UserRoleDao userRoleFromDb = roleRepository.findUserRoleDaoById(roleId);
         newUser.setRole(userRoleFromDb);
+
         userRepository.save(newUser);
 
         return true;
